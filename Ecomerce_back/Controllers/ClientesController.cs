@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data;
@@ -14,18 +15,17 @@ namespace Ecomerce_back.Controllers
     {
         public static string ConnectionString = "data source=localhost; Initial Catalog=ecommerce; Integrated Security=True";
 
-
-        [HttpGet(Name = "ListarClientes")]
+        [HttpGet]
         public async Task<string> ListarClientes()
         {
             DataSet ds = new DataSet();
             string response;
-
             try
             {
                 using (SqlConnection connection = new SqlConnection())
                 {
                     connection.ConnectionString = ConnectionString;
+
                     using (SqlCommand command = new SqlCommand())
                     {
                         command.Connection = connection;
@@ -40,15 +40,12 @@ namespace Ecomerce_back.Controllers
                             da.Fill(ds);
                         }     
                     }
-               
                 }
             }
             catch (Exception ex)
             {
                 return null;
             }
-
-            // Parse ds to Json
             response = ds.GetXml();
             var doc = XDocument.Parse(response);
             return JsonConvert.SerializeXNode(doc, Newtonsoft.Json.Formatting.None, omitRootObject: true);
