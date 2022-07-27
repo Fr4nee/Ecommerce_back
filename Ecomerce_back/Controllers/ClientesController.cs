@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Xml.Linq;
 
+
 namespace Ecomerce_back.Controllers
 {
     [ApiController]
@@ -13,7 +14,7 @@ namespace Ecomerce_back.Controllers
     {
         public static string ConnectionString = "data source=localhost; Initial Catalog=ecommerce; Integrated Security=True";
 
-        [HttpGet]
+        [HttpGet("ListarClientes")]
         public object ListarClientes()
         {
             DataSet ds = new DataSet();
@@ -45,17 +46,50 @@ namespace Ecomerce_back.Controllers
                 return null;
             }
 
-            response = ds.GetXml();
-            var doc = XDocument.Parse(response);
-            //return Task.FromResult(JsonConvert.SerializeXNode(doc, Newtonsoft.Json.Formatting.None, omitRootObject: true));
             Object jsonn = logicas.dataSetToJSON(ds);
             return JsonConvert.SerializeObject(jsonn);
         }
 
+        [HttpGet("DevolverCliente")]
+        public object DevolverCliente(string nombre, string contraseña)
+        {
+            DataSet ds = new DataSet();
+            DataTable dt = new DataTable();
 
+            try
+            {
+                using (SqlConnection connection = new SqlConnection())
+                {
+                    connection.ConnectionString = ConnectionString;
 
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        command.Parameters.Add(new SqlParameter("@nombre", nombre));
+                        command.Parameters.Add(new SqlParameter("@contraseña", contraseña));
 
-        [HttpPost]
+                        command.Connection = connection;
+                        connection.Open();
+                        command.CommandText = @"select * from Clientes_deff where (nombre = @nombre and contraseña = @contraseña)";
+                        command.ExecuteNonQuery();
+
+                        SqlDataAdapter da = new SqlDataAdapter(command);
+
+                        using (da)
+                        {
+                            da.Fill(ds);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            Object jsonn = logicas.dataSetToJSON(ds);
+            return JsonConvert.SerializeObject(jsonn);
+        }
+
+        [HttpPost("RegistrarCliente")]
         public void RegistrarCliente(string nombre, string apellido, string email, string telefono, string direccion, string contraseña)
         {
             try

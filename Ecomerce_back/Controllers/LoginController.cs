@@ -16,7 +16,7 @@ namespace Ecomerce_back.Controllers
     {
         public static string ConnectionString = "data source=localhost; Initial Catalog=ecommerce; Integrated Security=True";
         
-        [HttpGet]
+        [HttpGet("ValidoLogin")]
         public Task<bool> ValidoLogin(string nombre, string contraseña)
         {
             DataSet ds = new DataSet();
