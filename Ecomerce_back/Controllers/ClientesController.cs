@@ -1,11 +1,8 @@
-﻿using Ecomerce_back.Models;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data;
 using System.Data.SqlClient;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace Ecomerce_back.Controllers
@@ -17,7 +14,7 @@ namespace Ecomerce_back.Controllers
         public static string ConnectionString = "data source=localhost; Initial Catalog=ecommerce; Integrated Security=True";
 
         [HttpGet]
-        public async Task<string> ListarClientes()
+        public object ListarClientes()
         {
             DataSet ds = new DataSet();
             string response;
@@ -42,19 +39,24 @@ namespace Ecomerce_back.Controllers
                         }     
                     }
                 }
-            }
+            }            
             catch (Exception ex)
             {
                 return null;
             }
+
             response = ds.GetXml();
             var doc = XDocument.Parse(response);
-            return JsonConvert.SerializeXNode(doc, Newtonsoft.Json.Formatting.None, omitRootObject: true);
+            //return Task.FromResult(JsonConvert.SerializeXNode(doc, Newtonsoft.Json.Formatting.None, omitRootObject: true));
+            Object jsonn = logicas.dataSetToJSON(ds);
+            return JsonConvert.SerializeObject(jsonn);
         }
 
 
-        [HttpPost] 
-        public async void RegistrarCliente(string nombre, string apellido, string email, string telefono, string direccion)
+
+
+        [HttpPost]
+        public void RegistrarCliente(string nombre, string apellido, string email, string telefono, string direccion, string contraseña)
         {
             try
             {
@@ -69,6 +71,7 @@ namespace Ecomerce_back.Controllers
                         command.Parameters.Add(new SqlParameter("@email", email));
                         command.Parameters.Add(new SqlParameter("@telefono", telefono));
                         command.Parameters.Add(new SqlParameter("@direccion", direccion));
+                        command.Parameters.Add(new SqlParameter("@contraseña", contraseña));
 
                         command.Connection = connection;
                         connection.Open();
