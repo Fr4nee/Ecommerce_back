@@ -20,10 +20,8 @@ namespace Ecomerce_back.Controllers
         public Task<bool> ValidoLogin(string nombre, string contraseña)
         {
             DataSet ds = new DataSet();
-            DataTable dt = new DataTable();
             bool res = true;
-
-            string response;
+            
             try
             {
                 using (SqlConnection connection = new SqlConnection())
@@ -55,7 +53,6 @@ namespace Ecomerce_back.Controllers
             }
             Object jsonn = logicas.dataSetToJSON(ds);
             string jsasdf = jsonn.ToString();
-            //Object jsonparsed = JsonConvert.DeserializeObject(jsasdf);
 
             if (jsasdf != "[[]]")
             {

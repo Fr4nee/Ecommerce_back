@@ -19,7 +19,6 @@ namespace Ecomerce_back.Controllers
         public object ListarClientes()
         {
             DataSet ds = new DataSet();
-            string response;
             try
             {
                 using (SqlConnection connection = new SqlConnection())
@@ -44,19 +43,17 @@ namespace Ecomerce_back.Controllers
             }            
             catch (Exception ex)
             {
-                return null;
+                return ex;
             }
 
             Object jsonn = logicas.dataSetToJSON(ds);
-            return JsonConvert.SerializeObject(jsonn);
+            return jsonn;
         }
 
         [HttpGet("DevolverCliente")]
         public object DevolverCliente(string nombre, string contraseña)
         {
             DataSet ds = new DataSet();
-            DataTable dt = new DataTable();
-
             try
             {
                 using (SqlConnection connection = new SqlConnection())
@@ -84,17 +81,15 @@ namespace Ecomerce_back.Controllers
             }
             catch (Exception ex)
             {
-                
+                return ex;
             }
-            
-             
+           
             var jsonn = logicas.dataSetToJSON(ds);
             return jsonn;
-
         }
 
         [HttpPost("RegistrarCliente")]
-        public void RegistrarCliente(string nombre, string apellido, string email, string telefono, string direccion, string contraseña)
+        public string RegistrarCliente(string nombre, string apellido, string email, string telefono, string direccion, string contraseña)
         {
             try
             {
@@ -123,9 +118,44 @@ namespace Ecomerce_back.Controllers
             }
             catch (Exception ex)
             {
-
+                return ex.ToString();
             }
+            return "El cliente se registró correctamente.";
+        }
 
+        [HttpPost("EditarCliente")]
+        public string EditarCliente(string nombre, string apellido, string email, string telefono, string direccion, string contraseña, int id)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection())
+                {
+                    connection.ConnectionString = ConnectionString;
+
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        command.Parameters.Add(new SqlParameter("@nombre", nombre));
+                        command.Parameters.Add(new SqlParameter("@apellido", apellido));
+                        command.Parameters.Add(new SqlParameter("@email", email));
+                        command.Parameters.Add(new SqlParameter("@telefono", telefono));
+                        command.Parameters.Add(new SqlParameter("@direccion", direccion));
+                        command.Parameters.Add(new SqlParameter("@contraseña", contraseña));
+                        command.Parameters.Add(new SqlParameter("@id", id));
+
+                        command.Connection = connection;
+                        connection.Open();
+                        command.CommandText = @"update Clientes_deff set nombre = @nombre , apellido = @apellido, direccion = @direccion , telefono = @telefono, email = @email, contraseña = @contraseña where id = @id";
+                        command.ExecuteNonQuery();
+
+                        SqlDataAdapter da = new SqlDataAdapter(command);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+            return "El cliente se editó correctamente.";
         }
     }
 }
