@@ -3,13 +3,8 @@ using System.Collections.Generic;
 
 namespace Ecomerce_back.Models
 {
-    public partial class Cliente
+    public class Cliente
     {
-        public Cliente()
-        {
-            Compras = new HashSet<Compra>();
-        }
-
         public int Id { get; set; }
         public string? Email { get; set; }
         public string? Nombre { get; set; }

@@ -1,4 +1,5 @@
 ﻿
+using Ecomerce_back.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data;
@@ -83,10 +84,13 @@ namespace Ecomerce_back.Controllers
             }
             catch (Exception ex)
             {
-
+                
             }
-            Object jsonn = logicas.dataSetToJSON(ds);
-            return JsonConvert.SerializeObject(jsonn);
+            
+             
+            var jsonn = logicas.dataSetToJSON(ds);
+            return jsonn;
+
         }
 
         [HttpPost("RegistrarCliente")]
