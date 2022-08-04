@@ -8,11 +8,15 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nancy.Json;
+using System.Data.SqlClient;
 
 namespace Ecomerce_back
 {
+
     public class logicas
     {
+        public static string ConnectionString = "data source=localhost; Initial Catalog=ecommerce; Integrated Security=True";
+
         public static object dataSetToJSON(DataSet ds)
         {
             ArrayList root = new ArrayList();
@@ -57,5 +61,98 @@ namespace Ecomerce_back
                 return objT;
             }).ToList();
         }
+
+
+
+        public static int DevolverIDProducto(string nombre)
+        {
+            int id = 0;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection())
+                {
+                    connection.ConnectionString = ConnectionString;
+
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        command.Parameters.Add(new SqlParameter("@nombre", nombre));
+
+                        command.Connection = connection;
+                        connection.Open();
+                        command.CommandText = @"select id from Productos_deff where nombre = @nombre";
+                        command.ExecuteNonQuery();
+
+                        SqlDataAdapter da = new SqlDataAdapter(command);
+
+                        using (da)
+                        {
+                            id = (int)command.ExecuteScalar();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            return id;
+        }
+
+        public static int DevolverIDCategoria(string nombre)
+        {
+            int id = 0;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection())
+                {
+                    connection.ConnectionString = ConnectionString;
+
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        command.Parameters.Add(new SqlParameter("@nombre", nombre));
+                        command.Connection = connection;
+                        connection.Open();
+                        command.CommandText = @"select id from Categorias_deff where nombre = @nombre";
+                        command.ExecuteNonQuery();
+
+                        SqlDataAdapter da = new SqlDataAdapter(command);
+
+                        using (da)
+                        {
+                            id = (int)command.ExecuteScalar();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            return id;
+        }
+
+        public static void CargarDatosCatProd(int idProd, int idCat)
+        {
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.ConnectionString = ConnectionString;
+
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.Parameters.Add(new SqlParameter("@idProd", idProd));
+                    command.Parameters.Add(new SqlParameter("@idCat", idCat));
+                    command.Connection = connection;
+                    connection.Open();  
+                    command.CommandText = @"insert into Productos_Categorias_Deff (idProducto, idCategoria) values (@idProd, @idCat)";
+                    command.ExecuteNonQuery();
+                }
+            }   
+        }
+
+
+
+
+
+        
     }
 }
